@@ -8,24 +8,24 @@ import 'screens/homePage.dart';
 import 'screens/loginPage.dart';
 
 void main() {
-  checkLogin();
+  //checkLogin();
   runApp(MyApp());
 }
 
 bool loggedIn = false;
 
-Future<http.Response> checkLogin() async {
-  final response =
-      await http.get(Uri.parse('https://dashboard.aibuddha.in/api/checklogin'));
+// Future<http.Response> checkLogin() async {
+//   final response =
+//       await http.get(Uri.parse('https://dashboard.aibuddha.in/api/checklogin'));
 
-  print(response.statusCode);
-  if (response.statusCode == 200) {
-    loggedIn = true;
-  } else {
-    loggedIn = false;
-  }
-  return response;
-}
+//   print(response.statusCode);
+//   if (response.statusCode == 200) {
+//     loggedIn = true;
+//   } else {
+//     loggedIn = false;
+//   }
+//   return response;
+// }
 
 class MyApp extends StatelessWidget {
   @override

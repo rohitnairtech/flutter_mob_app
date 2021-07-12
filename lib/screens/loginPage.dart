@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
 
-import './homePage.dart';
+import 'dart:convert';
+
+//import './homePage.dart';
+
+class LoginData {
+  String email;
+  String password;
+
+  LoginData(this.email, this.password);
+
+  Map toJson() => {'email': email, 'password': password};
+}
 
 class LoginPage extends StatefulWidget {
   @override
@@ -71,8 +82,24 @@ class _LoginState extends State<LoginPage> {
                   color: Colors.blue, borderRadius: BorderRadius.circular(20)),
               child: TextButton(
                 onPressed: () {
-                  Navigator.push(
-                      context, MaterialPageRoute(builder: (_) => HomePage()));
+                  final email = emailField.text;
+                  final pswd = pswdField.text;
+
+                  LoginData logindata = LoginData(email, pswd);
+
+                  String jsonData = jsonEncode(logindata);
+
+                  //print(jsonData);
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        content: Text(jsonData),
+                      );
+                    },
+                  );
+                  // Navigator.push(
+                  //     context, MaterialPageRoute(builder: (_) => HomePage()));
                 },
                 child: Text(
                   'Login',
