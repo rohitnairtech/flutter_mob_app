@@ -1,16 +1,34 @@
 import 'package:flutter/material.dart';
 
+import 'package:http/http.dart' as http;
+
 import 'dart:convert';
 
 //import './homePage.dart';
 
-class LoginData {
-  String email;
-  String password;
+// class LoginData {
+//   String email;
+//   String password;
 
-  LoginData(this.email, this.password);
+//   LoginData(this.email, this.password);
 
-  Map toJson() => {'email': email, 'password': password};
+//   Map toJson() => {'email': email, 'password': password};
+// }
+
+Future<http.Response> login(String email, String password) async {
+  final response = await http.post(Uri.parse('http://localhost:5055/api/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{'email': email, 'password': password}));
+
+  print(response.statusCode);
+  if (response.statusCode == 200) {
+    print('200');
+  } else {
+    print('400');
+  }
+  return response;
 }
 
 class LoginPage extends StatefulWidget {
@@ -85,19 +103,21 @@ class _LoginState extends State<LoginPage> {
                   final email = emailField.text;
                   final pswd = pswdField.text;
 
-                  LoginData logindata = LoginData(email, pswd);
+                  login(email, pswd);
+                  // LoginData logindata = LoginData(email, pswd);
 
-                  String jsonData = jsonEncode(logindata);
+                  // String jsonData = jsonEncode(logindata);
 
-                  //print(jsonData);
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        content: Text(jsonData),
-                      );
-                    },
-                  );
+                  // //print(jsonData);
+                  // showDialog(
+                  //   context: context,
+                  //   builder: (context) {
+                  //     return AlertDialog(
+                  //       content: Text(jsonData),
+                  //     );
+                  //   },
+                  // );
+
                   // Navigator.push(
                   //     context, MaterialPageRoute(builder: (_) => HomePage()));
                 },
