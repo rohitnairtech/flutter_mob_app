@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'globals.dart' as globals;
+
 //import 'package:http/http.dart' as http;
 //import 'package:logging/logging.dart';
 
@@ -11,8 +13,6 @@ void main() {
   //checkLogin();
   runApp(MyApp());
 }
-
-bool loggedIn = false;
 
 // Future<http.Response> checkLogin() async {
 //   final response =
@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       debugShowCheckedModeBanner: false,
-      home: (loggedIn ? HomePage() : LoginPage()),
+      home: (globals.loggedIn ? HomePage() : LoginPage()),
     );
   }
 }

@@ -2,20 +2,15 @@ import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
 
+import '../models/userInfoModel.dart';
+
+import '../globals.dart' as globals;
+
 import 'dart:convert';
 
-//import './homePage.dart';
+import './homePage.dart';
 
-// class LoginData {
-//   String email;
-//   String password;
-
-//   LoginData(this.email, this.password);
-
-//   Map toJson() => {'email': email, 'password': password};
-// }
-
-Future<http.Response> login(String email, String password) async {
+Future<UserInfoModel> login(String email, String password) async {
   final response = await http.post(Uri.parse('http://localhost:5055/api/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -24,11 +19,27 @@ Future<http.Response> login(String email, String password) async {
 
   print(response.statusCode);
   if (response.statusCode == 200) {
-    print('200');
+    globals.loggedIn = true;
+    return userInfoModelFromJson(response.body);
   } else {
-    print('400');
+    globals.loggedIn = false;
+    throw Exception('Failed to login.');
   }
-  return response;
+}
+
+Future<List> requestChatData() async {
+  final response = await http.get(
+      Uri.parse('http://localhost:5055/resources/chatdata?client=' +
+          globals.userInfo.client),
+      headers: <String, String>{
+        'Authorization': 'Bearer ' + globals.userInfo.accessToken,
+      });
+  print(response.statusCode);
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    throw Exception('Failed to get chat data.');
+  }
 }
 
 class LoginPage extends StatefulWidget {
@@ -42,6 +53,8 @@ class _LoginState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -59,7 +72,7 @@ class _LoginState extends State<LoginPage> {
                     /*decoration: BoxDecoration(
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(50.0)),*/
-                    child: Image.asset('flutter-logo.png')),
+                    child: Image.asset('asset/flutter-logo.png')),
               ),
             ),
             Padding(
@@ -90,36 +103,43 @@ class _LoginState extends State<LoginPage> {
               onPressed: () {},
               child: Text(
                 'Forgot Password',
-                style: TextStyle(color: Colors.blue, fontSize: 15),
+                style: TextStyle(color: primaryColor, fontSize: 15),
               ),
             ),
             Container(
               height: 50,
               width: 250,
               decoration: BoxDecoration(
-                  color: Colors.blue, borderRadius: BorderRadius.circular(20)),
+                  color: primaryColor, borderRadius: BorderRadius.circular(20)),
               child: TextButton(
-                onPressed: () {
-                  final email = emailField.text;
-                  final pswd = pswdField.text;
-
-                  login(email, pswd);
+                onPressed: () async {
+                  final UserInfoModel userInfo =
+                      await login(emailField.text, pswdField.text);
                   // LoginData logindata = LoginData(email, pswd);
 
                   // String jsonData = jsonEncode(logindata);
+                  globals.userInfo = userInfo;
 
+                  final List chatData = await requestChatData();
+                  //print(chatData);
+                  print(chatData[0]);
+                  globals.chatData = chatData;
                   // //print(jsonData);
                   // showDialog(
                   //   context: context,
                   //   builder: (context) {
                   //     return AlertDialog(
-                  //       content: Text(jsonData),
+                  //       content: Text(globals.userInfo.role +
+                  //           ' ' +
+                  //           globals.userInfo.firstName +
+                  //           ' ' +
+                  //           globals.userInfo.lastName),
                   //     );
                   //   },
                   // );
 
-                  // Navigator.push(
-                  //     context, MaterialPageRoute(builder: (_) => HomePage()));
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (_) => HomePage()));
                 },
                 child: Text(
                   'Login',

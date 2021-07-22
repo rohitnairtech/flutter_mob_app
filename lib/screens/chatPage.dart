@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 //model
 import '../models/chatUsersModel.dart';
 
+//state
+import '../globals.dart' as globals;
+
 //widget
 import '../widgets/conversationList.dart';
 
@@ -11,52 +14,39 @@ class ChatPage extends StatefulWidget {
   _ChatPageState createState() => _ChatPageState();
 }
 
+String dateTimeToDays(String dateTimeStr) {
+  final chatDate = DateTime.parse(dateTimeStr);
+  final currDate = DateTime.now();
+
+  final daysDiff = currDate.difference(chatDate).inDays;
+
+  if (daysDiff == 0) {
+    return 'today';
+  } else if (daysDiff == 1) {
+    return 'yesterday';
+  } else {
+    return '$daysDiff days';
+  }
+}
+
 class _ChatPageState extends State<ChatPage> {
-  List<ChatUsers> chatUsers = [
-    ChatUsers(
-        name: "Jane Russel",
-        messageText: "Awesome Setup",
-        imageURL: "images/userImage1.jpeg",
-        time: "Now"),
-    ChatUsers(
-        name: "Glady's Murphy",
-        messageText: "That's Great",
-        imageURL: "images/userImage2.jpeg",
-        time: "Yesterday"),
-    ChatUsers(
-        name: "Jorge Henry",
-        messageText: "Hey where are you?",
-        imageURL: "images/userImage3.jpeg",
-        time: "31 Mar"),
-    ChatUsers(
-        name: "Philip Fox",
-        messageText: "Busy! Call me in 20 mins",
-        imageURL: "images/userImage4.jpeg",
-        time: "28 Mar"),
-    ChatUsers(
-        name: "Debra Hawkins",
-        messageText: "Thankyou, It's awesome",
-        imageURL: "images/userImage5.jpeg",
-        time: "23 Mar"),
-    ChatUsers(
-        name: "Jacob Pena",
-        messageText: "will update you in evening",
-        imageURL: "images/userImage6.jpeg",
-        time: "17 Mar"),
-    ChatUsers(
-        name: "Andrey Jones",
-        messageText: "Can you please share the file?",
-        imageURL: "images/userImage7.jpeg",
-        time: "24 Feb"),
-    ChatUsers(
-        name: "John Wick",
-        messageText: "How are you?",
-        imageURL: "images/userImage8.jpeg",
-        time: "18 Feb"),
-  ];
+  final chatList = globals.chatData;
+
+  List<ChatUsers> chatUsers = [];
 
   @override
   Widget build(BuildContext context) {
+    for (var i = 0; i < chatList.length; i++) {
+      final chat = chatList[i];
+      //final lastMsg = chat['chats'].last;
+      final userList = ChatUsers(
+          name: chat['email'],
+          messageText: chat['channel'],
+          imageURL: "images/userImage8.jpeg",
+          time: dateTimeToDays(chat['createdAt']));
+      chatUsers.add(userList);
+    }
+
     return Scaffold(
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
