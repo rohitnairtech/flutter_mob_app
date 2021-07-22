@@ -40,6 +40,7 @@ class _ChatPageState extends State<ChatPage> {
       final chat = chatList[i];
       //final lastMsg = chat['chats'].last;
       final userList = ChatUsers(
+          id: chat['_id'],
           name: chat['email'],
           messageText: chat['channel'],
           imageURL: "images/userImage8.jpeg",
@@ -123,6 +124,7 @@ class _ChatPageState extends State<ChatPage> {
               physics: NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 return ConversationList(
+                  id: chatUsers[index].id,
                   name: chatUsers[index].name,
                   messageText: chatUsers[index].messageText,
                   imageUrl: chatUsers[index].imageURL,

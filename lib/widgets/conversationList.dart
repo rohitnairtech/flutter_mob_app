@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
+import '../globals.dart' as globals;
+
 import '../screens/chatDetailPage.dart';
 
 class ConversationList extends StatefulWidget {
+  final String id;
   final String name;
   final String messageText;
   final String imageUrl;
   final String time;
   final bool isMessageRead;
   ConversationList(
-      {required this.name,
+      {required this.id,
+      required this.name,
       required this.messageText,
       required this.imageUrl,
       required this.time,
@@ -23,6 +27,7 @@ class _ConversationListState extends State<ConversationList> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        globals.currChatId = widget.id;
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return ChatDetailPage();
         }));

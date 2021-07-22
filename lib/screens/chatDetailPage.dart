@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../globals.dart' as globals;
+
 import '../models/chatMessageModel.dart';
 
 class ChatDetailPage extends StatefulWidget {
@@ -7,20 +9,53 @@ class ChatDetailPage extends StatefulWidget {
   _ChatDetailPageState createState() => _ChatDetailPageState();
 }
 
+String chatUserName = '';
+
+List<dynamic> getCurrChat() {
+  final chatData = globals.chatData;
+  final currChatId = globals.currChatId;
+  for (var i = 0; i < chatData.length; i++) {
+    final thisChat = chatData[i];
+    if (thisChat['_id'] == currChatId) {
+      chatUserName = thisChat['first_name'] + ' ' + thisChat['last_name'];
+      return thisChat['chats'];
+    }
+  }
+  throw Exception("Couldn't find the requested chat");
+}
+
 class _ChatDetailPageState extends State<ChatDetailPage> {
-  List<ChatMessage> messages = [
-    ChatMessage(messageContent: "Hello, Will", messageType: "receiver"),
-    ChatMessage(messageContent: "How have you been?", messageType: "receiver"),
-    ChatMessage(
-        messageContent: "Hey Kriss, I am doing fine dude. wbu?",
-        messageType: "sender"),
-    ChatMessage(messageContent: "ehhhh, doing OK.", messageType: "receiver"),
-    ChatMessage(
-        messageContent: "Is there any thing wrong?", messageType: "sender"),
-  ];
+  // List<ChatMessage> messages = [
+  //   ChatMessage(messageContent: "Hello, Will", messageType: "receiver"),
+  //   ChatMessage(messageContent: "How have you been?", messageType: "receiver"),
+  //   ChatMessage(
+  //       messageContent: "Hey Kriss, I am doing fine dude. wbu?",
+  //       messageType: "sender"),
+  //   ChatMessage(messageContent: "ehhhh, doing OK.", messageType: "receiver"),
+  //   ChatMessage(
+  //       messageContent: "Is there any thing wrong?", messageType: "sender"),
+  // ];
+
+  List<ChatMessage> messages = [];
+
+  List<dynamic> currChat = getCurrChat();
 
   @override
   Widget build(BuildContext context) {
+    print(currChat);
+    print(currChat.runtimeType);
+
+    for (var i = 0; i < currChat.length; i++) {
+      final chat = currChat[i];
+      if (chat.containsKey('message')) {
+        messages.add(ChatMessage(
+            messageContent: chat['message'], messageType: 'receiver'));
+      } else if (chat.containsKey('replies')) {
+        messages.add(ChatMessage(
+            messageContent: chat['replies']['text'], messageType: 'sender'));
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -57,7 +92,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        "Kriss Benwat",
+                        chatUserName,
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w600),
                       ),
