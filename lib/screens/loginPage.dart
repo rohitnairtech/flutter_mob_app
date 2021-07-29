@@ -124,6 +124,9 @@ class _LoginState extends State<LoginPage> {
                   //print(chatData);
                   print(chatData[0]);
                   globals.chatData = chatData;
+
+                  pswdField.clear();
+                  emailField.clear();
                   // //print(jsonData);
                   // showDialog(
                   //   context: context,
@@ -150,7 +153,7 @@ class _LoginState extends State<LoginPage> {
             SizedBox(
               height: 130,
             ),
-            Text('New User? Create Account')
+            //Text('New User? Create Account')
           ],
         ),
       ),

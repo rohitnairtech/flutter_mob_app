@@ -42,9 +42,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(currChat);
-    print(currChat.runtimeType);
-
     for (var i = 0; i < currChat.length; i++) {
       final chat = currChat[i];
       if (chat.containsKey('message')) {
@@ -157,7 +154,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               color: Colors.white,
               child: Row(
                 children: <Widget>[
-                  GestureDetector(
+                  InkWell(
                     onTap: () {},
                     child: Container(
                       height: 30,

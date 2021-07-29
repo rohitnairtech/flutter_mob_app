@@ -34,20 +34,43 @@ class _ChatPageState extends State<ChatPage> {
 
   List<ChatUsers> chatUsers = [];
 
+  List<ChatUsers> filteredList = [];
+
+  final searchField = TextEditingController();
+
+  void searchOperator(String searchStr) {
+    setState(() {
+      if (identical(searchStr, '')) {
+        filteredList = chatUsers;
+      } else {
+        filteredList = chatUsers
+            .where((user) =>
+                user.name.toLowerCase().contains(searchStr.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
   @override
-  Widget build(BuildContext context) {
-    for (var i = 0; i < chatList.length; i++) {
+  void initState() {
+    for (int i = 0; i < chatList.length; i++) {
       final chat = chatList[i];
       //final lastMsg = chat['chats'].last;
       final userList = ChatUsers(
           id: chat['_id'],
-          name: chat['email'],
+          name: chat['first_name'] + ' ' + chat['last_name'],
           messageText: chat['channel'],
           imageURL: "images/userImage8.jpeg",
           time: dateTimeToDays(chat['createdAt']));
       chatUsers.add(userList);
     }
 
+    filteredList = List.of(chatUsers);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
@@ -73,22 +96,29 @@ class _ChatPageState extends State<ChatPage> {
                         borderRadius: BorderRadius.circular(30),
                         color: Colors.pink[50],
                       ),
-                      child: Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.add,
-                            color: Colors.pink,
-                            size: 20,
-                          ),
-                          SizedBox(
-                            width: 2,
-                          ),
-                          Text(
-                            "Add New",
-                            style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                        ],
+                      child: InkWell(
+                        onTap: () {
+                          print("Logout pressed");
+                          globals.loggedIn = false;
+                          Navigator.pop(context);
+                        },
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.logout,
+                              color: Colors.pink,
+                              size: 20,
+                            ),
+                            SizedBox(
+                              width: 2,
+                            ),
+                            Text(
+                              "Logout",
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       ),
                     )
                   ],
@@ -99,6 +129,11 @@ class _ChatPageState extends State<ChatPage> {
               child: Padding(
                 padding: EdgeInsets.only(top: 16, left: 16, right: 16),
                 child: TextField(
+                  controller: searchField,
+                  onChanged: (text) {
+                    print('First text field: $text');
+                    searchOperator(text);
+                  },
                   decoration: InputDecoration(
                     hintText: "Search...",
                     hintStyle: TextStyle(color: Colors.grey.shade600),
@@ -107,6 +142,18 @@ class _ChatPageState extends State<ChatPage> {
                       color: Colors.grey.shade600,
                       size: 20,
                     ),
+                    suffixIcon: searchField.text.length == 0
+                        ? null
+                        : IconButton(
+                            onPressed: () {
+                              searchField.clear();
+                              searchOperator('');
+                            },
+                            icon: Icon(
+                              Icons.clear,
+                              color: Colors.grey.shade600,
+                              size: 20,
+                            )),
                     filled: true,
                     fillColor: Colors.grey.shade100,
                     contentPadding: EdgeInsets.all(8),
@@ -118,17 +165,17 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
             ListView.builder(
-              itemCount: chatUsers.length,
+              itemCount: filteredList.length,
               shrinkWrap: true,
               padding: EdgeInsets.only(top: 16),
               physics: NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 return ConversationList(
-                  id: chatUsers[index].id,
-                  name: chatUsers[index].name,
-                  messageText: chatUsers[index].messageText,
-                  imageUrl: chatUsers[index].imageURL,
-                  time: chatUsers[index].time,
+                  id: filteredList[index].id,
+                  name: filteredList[index].name,
+                  messageText: filteredList[index].messageText,
+                  imageUrl: filteredList[index].imageURL,
+                  time: filteredList[index].time,
                   isMessageRead: (index == 0 || index == 3) ? true : false,
                 );
               },
