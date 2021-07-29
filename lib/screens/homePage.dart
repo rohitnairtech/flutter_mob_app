@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import './chatPage.dart';
 
+//WORK ON SOCKET IO CONNECTION IN THE HOME PAGE
+
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

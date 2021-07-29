@@ -14,7 +14,7 @@ String chatUserName = '';
 List<dynamic> getCurrChat() {
   final chatData = globals.chatData;
   final currChatId = globals.currChatId;
-  for (var i = 0; i < chatData.length; i++) {
+  for (int i = 0; i < chatData.length; i++) {
     final thisChat = chatData[i];
     if (thisChat['_id'] == currChatId) {
       chatUserName = thisChat['first_name'] + ' ' + thisChat['last_name'];
@@ -40,9 +40,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   List<dynamic> currChat = getCurrChat();
 
+  final msgField = TextEditingController();
+
   @override
-  Widget build(BuildContext context) {
-    for (var i = 0; i < currChat.length; i++) {
+  void initState() {
+    for (int i = 0; i < currChat.length; i++) {
       final chat = currChat[i];
       if (chat.containsKey('message')) {
         messages.add(ChatMessage(
@@ -52,7 +54,18 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             messageContent: chat['replies']['text'], messageType: 'sender'));
       }
     }
+    super.initState();
+  }
 
+  void addMsg(String msg) {
+    setState(() {
+      messages.add(ChatMessage(messageContent: msg, messageType: 'sender'));
+    });
+  }
+
+//WORK ON SOCKET IO CONNECTION IN THE HOME PAGE
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -175,6 +188,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   ),
                   Expanded(
                     child: TextField(
+                      controller: msgField,
                       decoration: InputDecoration(
                           hintText: "Write message...",
                           hintStyle: TextStyle(color: Colors.black54),
@@ -185,7 +199,10 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     width: 15,
                   ),
                   FloatingActionButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      addMsg(msgField.text);
+                      msgField.clear();
+                    },
                     child: Icon(
                       Icons.send,
                       color: Colors.white,
