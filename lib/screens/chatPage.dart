@@ -6,8 +6,12 @@ import '../models/chatUsersModel.dart';
 //state
 import '../globals.dart' as globals;
 
+//WORK ON SOCKET IO CONNECTION IN THE HOME PAGE
+
 //widget
 import '../widgets/conversationList.dart';
+
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class ChatPage extends StatefulWidget {
   @override
@@ -64,8 +68,26 @@ class _ChatPageState extends State<ChatPage> {
           time: dateTimeToDays(chat['createdAt']));
       chatUsers.add(userList);
     }
-
     filteredList = List.of(chatUsers);
+
+    IO.Socket socket = IO.io(globals.baseUrl);
+    socket.onConnect((_) {
+      print('connectedddd');
+      socket.emit('room', globals.userInfo.client);
+    });
+    socket.on('test', (data) => print(data));
+
+    socket.on('push', (data) {
+      print('\n Pritn \n');
+      print(data);
+      print('\n Pritn \n');
+    });
+    socket.on('activity', (data) {
+      print('\n Actrivi \n');
+      print(data);
+      print('\n Actrivi \n');
+    });
+
     super.initState();
   }
 

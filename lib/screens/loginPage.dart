@@ -11,7 +11,7 @@ import 'dart:convert';
 import './homePage.dart';
 
 Future<UserInfoModel> login(String email, String password) async {
-  final response = await http.post(Uri.parse('http://localhost:5055/api/login'),
+  final response = await http.post(Uri.parse(globals.baseUrl + 'api/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -29,7 +29,8 @@ Future<UserInfoModel> login(String email, String password) async {
 
 Future<List> requestChatData() async {
   final response = await http.get(
-      Uri.parse('http://localhost:5055/resources/chatdata?client=' +
+      Uri.parse(globals.baseUrl +
+          'resources/chatdata?client=' +
           globals.userInfo.client),
       headers: <String, String>{
         'Authorization': 'Bearer ' + globals.userInfo.accessToken,

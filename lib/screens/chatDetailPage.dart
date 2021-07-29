@@ -10,6 +10,7 @@ class ChatDetailPage extends StatefulWidget {
 }
 
 String chatUserName = '';
+bool flag = true;
 
 List<dynamic> getCurrChat() {
   final chatData = globals.chatData;
@@ -18,6 +19,7 @@ List<dynamic> getCurrChat() {
     final thisChat = chatData[i];
     if (thisChat['_id'] == currChatId) {
       chatUserName = thisChat['first_name'] + ' ' + thisChat['last_name'];
+      thisChat['flag'] == 'true' ? flag = true : flag = false;
       return thisChat['chats'];
     }
   }
@@ -42,6 +44,20 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   final msgField = TextEditingController();
 
+  List<bool> isSelected = List.generate(2, (_) => false);
+
+  void setFlag(int index) {
+    setState(() {
+      for (int i = 0; i < isSelected.length; i++) {
+        if (index == i) {
+          isSelected[i] = true;
+        } else {
+          isSelected[i] = false;
+        }
+      }
+    });
+  }
+
   @override
   void initState() {
     for (int i = 0; i < currChat.length; i++) {
@@ -49,11 +65,12 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       if (chat.containsKey('message')) {
         messages.add(ChatMessage(
             messageContent: chat['message'], messageType: 'receiver'));
-      } else if (chat.containsKey('replies')) {
+      } else if (chat.containsKey('reply')) {
         messages.add(ChatMessage(
-            messageContent: chat['replies']['text'], messageType: 'sender'));
+            messageContent: chat['reply']['text'], messageType: 'sender'));
       }
     }
+
     super.initState();
   }
 
@@ -66,6 +83,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 //WORK ON SOCKET IO CONNECTION IN THE HOME PAGE
   @override
   Widget build(BuildContext context) {
+    setFlag(flag ? 0 : 1);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -117,9 +135,17 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.settings,
-                  color: Colors.black54,
+                ToggleButtons(
+                  children: [Icon(Icons.face), Icon(Icons.smart_toy)],
+                  isSelected: isSelected,
+                  color: Colors.grey,
+                  selectedColor: flag
+                      ? Colors.greenAccent.shade700
+                      : Colors.pinkAccent.shade200,
+                  onPressed: (int index) {
+                    flag = !flag;
+                    setFlag(index);
+                  },
                 ),
               ],
             ),
