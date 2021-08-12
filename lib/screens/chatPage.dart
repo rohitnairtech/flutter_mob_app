@@ -18,29 +18,31 @@ class ChatPage extends StatefulWidget {
   _ChatPageState createState() => _ChatPageState();
 }
 
-String dateTimeToDays(String dateTimeStr) {
-  final chatDate = DateTime.parse(dateTimeStr);
-  final currDate = DateTime.now();
-
-  final daysDiff = currDate.difference(chatDate).inDays;
-
-  if (daysDiff == 0) {
-    return 'today';
-  } else if (daysDiff == 1) {
-    return 'yesterday';
-  } else {
-    return '$daysDiff days';
-  }
-}
-
 class _ChatPageState extends State<ChatPage> {
   final chatList = globals.chatData;
+
+  final ScrollController _scrollController = ScrollController();
 
   List<ChatUsers> chatUsers = [];
 
   List<ChatUsers> filteredList = [];
 
   final searchField = TextEditingController();
+
+  String dateTimeToDays(String dateTimeStr) {
+    final chatDate = DateTime.parse(dateTimeStr);
+    final currDate = DateTime.now();
+
+    final daysDiff = currDate.difference(chatDate).inDays;
+
+    if (daysDiff == 0) {
+      return 'today';
+    } else if (daysDiff == 1) {
+      return 'yesterday';
+    } else {
+      return '$daysDiff days';
+    }
+  }
 
   void searchOperator(String searchStr) {
     setState(() {
@@ -55,19 +57,32 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  @override
-  void initState() {
+  ChatUsers chatUserGen(dynamic chat, String lastMessage) {
+    return ChatUsers(
+        id: chat['_id'],
+        name: chat['first_name'] + ' ' + chat['last_name'],
+        messageText: lastMessage,
+        imageURL: "images/userImage8.jpeg",
+        time: dateTimeToDays(chat['createdAt']));
+  }
+
+  List<ChatUsers> chatUserListGen() {
+    final List<ChatUsers> newList = [];
     for (int i = 0; i < chatList.length; i++) {
       final chat = chatList[i];
-      //final lastMsg = chat['chats'].last;
-      final userList = ChatUsers(
-          id: chat['_id'],
-          name: chat['first_name'] + ' ' + chat['last_name'],
-          messageText: chat['channel'],
-          imageURL: "images/userImage8.jpeg",
-          time: dateTimeToDays(chat['createdAt']));
-      chatUsers.add(userList);
+      final lastChatItem = chat['chats'].last;
+      final lastMessage = lastChatItem.containsKey('message')
+          ? lastChatItem['message']
+          : lastChatItem['reply']['text'];
+      final ChatUsers userList = chatUserGen(chat, lastMessage);
+      newList.add(userList);
     }
+    return newList;
+  }
+
+  @override
+  void initState() {
+    chatUsers = chatUserListGen();
     filteredList = List.of(chatUsers);
 
     IO.Socket socket = IO.io(globals.baseUrl);
@@ -80,6 +95,20 @@ class _ChatPageState extends State<ChatPage> {
     socket.on('push', (data) {
       print('\n Pritn \n');
       print(data);
+      if (data['type'] == 'update') {
+        print('updating');
+        for (int i = 0; i < chatList.length; i++) {
+          if (chatList[i]['_id'] == data['value']['_id']) {
+            if (data['value']['data_changed'] == 'flag') {
+              final String flag = data['value']['change'] ? 'true' : 'false';
+              chatList[i]['flag'] = flag;
+              break;
+            }
+          }
+        }
+        chatUsers = chatUserListGen();
+        searchOperator(searchField.text);
+      }
       print('\n Pritn \n');
     });
     socket.on('activity', (data) {
@@ -88,7 +117,25 @@ class _ChatPageState extends State<ChatPage> {
       print('\n Actrivi \n');
     });
 
+    _scrollController.addListener(() {
+      double maxScroll = _scrollController.position.maxScrollExtent;
+      double currentScroll = _scrollController.position.pixels;
+      const double delta = 20.0;
+      print('event fired');
+      if (maxScroll - currentScroll <= delta) {
+        print('reached the end, going to load more');
+      } else {
+        print('hasnt reached end');
+      }
+    });
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -187,6 +234,7 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
             ListView.builder(
+              controller: _scrollController,
               itemCount: filteredList.length,
               shrinkWrap: true,
               padding: EdgeInsets.only(top: 16),

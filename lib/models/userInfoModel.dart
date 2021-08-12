@@ -3,7 +3,7 @@ import 'dart:convert';
 UserInfoModel userInfoModelFromJson(String str) =>
     UserInfoModel.fromJson(json.decode(str));
 
-String userInfoModelToJson(UserInfoModel data) => json.encode(data.toJson());
+String userInfoModelToJson(UserInfoModel data) => json.encode(data.toMap());
 
 class UserInfoModel {
   UserInfoModel({
@@ -18,10 +18,10 @@ class UserInfoModel {
     required this.refreshToken,
   });
 
-  String id;
-  String client;
-  String email;
-  String role;
+  final String id;
+  final String client;
+  final String email;
+  final String role;
   String profilePic;
   String firstName;
   String lastName;
@@ -40,7 +40,7 @@ class UserInfoModel {
         refreshToken: json["refreshToken"],
       );
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toMap() => {
         "_id": id,
         "client": client,
         "email": email,
