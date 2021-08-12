@@ -4,6 +4,8 @@ import '../globals.dart' as globals;
 
 import '../models/chatMessageModel.dart';
 
+//import 'package:toggle_switch/toggle_switch.dart';
+
 class ChatDetailPage extends StatefulWidget {
   @override
   _ChatDetailPageState createState() => _ChatDetailPageState();
@@ -19,7 +21,7 @@ List<dynamic> getCurrChat() {
     final thisChat = chatData[i];
     if (thisChat['_id'] == currChatId) {
       chatUserName = thisChat['first_name'] + ' ' + thisChat['last_name'];
-      thisChat['flag'] == 'true' ? flag = true : flag = false;
+      flag = thisChat['flag'] == 'true' ? true : false;
       return thisChat['chats'];
     }
   }
@@ -44,20 +46,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   final msgField = TextEditingController();
 
-  List<bool> isSelected = List.generate(2, (_) => false);
-
-  void setFlag(int index) {
-    setState(() {
-      for (int i = 0; i < isSelected.length; i++) {
-        if (index == i) {
-          isSelected[i] = true;
-        } else {
-          isSelected[i] = false;
-        }
-      }
-    });
-  }
-
   @override
   void initState() {
     for (int i = 0; i < currChat.length; i++) {
@@ -80,10 +68,21 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     });
   }
 
+  void changeGlobalFlag(bool flagValue) {
+    final chatData = globals.chatData;
+    final currChatId = globals.currChatId;
+
+    for (int i = 0; i < chatData.length; i++) {
+      if (chatData[i]['_id'] == currChatId) {
+        chatData[i]['flag'] = flagValue ? 'true' : 'false';
+        break;
+      }
+    }
+  }
+
 //WORK ON SOCKET IO CONNECTION IN THE HOME PAGE
   @override
   Widget build(BuildContext context) {
-    setFlag(flag ? 0 : 1);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -135,18 +134,14 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     ],
                   ),
                 ),
-                ToggleButtons(
-                  children: [Icon(Icons.face), Icon(Icons.smart_toy)],
-                  isSelected: isSelected,
-                  color: Colors.grey,
-                  selectedColor: flag
-                      ? Colors.greenAccent.shade700
-                      : Colors.pinkAccent.shade200,
-                  onPressed: (int index) {
-                    flag = !flag;
-                    setFlag(index);
-                  },
-                ),
+                Switch(
+                    value: flag,
+                    onChanged: (bool toggled) {
+                      changeGlobalFlag(toggled);
+                      setState(() {
+                        flag = toggled;
+                      });
+                    }),
               ],
             ),
           ),
